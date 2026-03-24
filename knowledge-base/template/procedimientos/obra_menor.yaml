@@ -1,0 +1,71 @@
+# Definición del trámite: Licencia de Obra Menor
+# Usar como plantilla y adaptar a la normativa local del municipio
+
+nombre: "Licencia de Obra Menor"
+codigo: "obra_menor"
+descripcion: >
+  Autorización municipal para la realización de obras de escasa entidad constructiva
+  que no requieren proyecto técnico: reformas interiores, pintura de fachadas,
+  sustitución de solados, instalación de rótulos, etc.
+normativa:
+  - "Ley 38/1999, de Ordenación de la Edificación"
+  - "Ordenanza Municipal de Obras (consultar al Secretario el articulado vigente)"
+plazo_resolucion_dias: 30
+tasa_descripcion: "Según tabla de tarifas de la ordenanza fiscal vigente"
+silencio_administrativo: "positivo"
+
+documentacion_requerida:
+  - id: instancia
+    nombre: "Instancia de solicitud"
+    descripcion: "Formulario normalizado del ayuntamiento, firmado por el solicitante"
+    obligatorio: true
+    formato: ["pdf", "papel"]
+
+  - id: dni_solicitante
+    nombre: "DNI/NIF del solicitante"
+    descripcion: "Documento Nacional de Identidad o NIF en vigor"
+    obligatorio: true
+    formato: ["pdf", "jpg", "png"]
+
+  - id: descripcion_obras
+    nombre: "Descripción detallada de las obras"
+    descripcion: >
+      Memoria descriptiva de las obras: qué se va a hacer, materiales a utilizar,
+      superficie afectada y estado actual. No requiere firma de técnico para obras menores.
+    obligatorio: true
+    formato: ["pdf", "doc", "docx"]
+
+  - id: presupuesto
+    nombre: "Presupuesto de ejecución"
+    descripcion: "Presupuesto desglosado firmado por empresa o autónomo que realizará las obras"
+    obligatorio: true
+    formato: ["pdf"]
+
+  - id: plano_situacion
+    nombre: "Plano de situación"
+    descripcion: "Plano o croquis que identifique la ubicación del inmueble en el municipio"
+    obligatorio: true
+    formato: ["pdf", "jpg", "png"]
+
+  - id: fotografias
+    nombre: "Fotografías del estado actual"
+    descripcion: "Fotografías del interior/exterior que se va a reformar"
+    obligatorio: false
+    formato: ["jpg", "png", "pdf"]
+
+  - id: autorizacion_propietario
+    nombre: "Autorización del propietario"
+    descripcion: "Necesario si el solicitante no es el propietario del inmueble"
+    obligatorio: false  # obligatorio si solicitante != propietario
+    formato: ["pdf"]
+
+plantilla_resolucion: "resolucion_obra_menor.docx"
+plantilla_requerimiento: "requerimiento_subsanacion.docx"
+
+# Criterios que el agente redactor debe verificar en la resolución
+criterios_verificacion:
+  - "¿Es la obra realmente 'menor'? (no requiere proyecto arquitectónico)"
+  - "¿Afecta a elementos estructurales? (en ese caso no sería obra menor)"
+  - "¿Está el inmueble en zona de especial protección?"
+  - "¿El presupuesto coincide con el tipo de obra descrita?"
+  - "¿La tasa ha sido liquidada correctamente?"

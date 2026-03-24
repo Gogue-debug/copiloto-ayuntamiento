@@ -1,0 +1,59 @@
+# =============================================================================
+# Copiloto Administrativo — .gitignore
+# =============================================================================
+
+# Entorno y secretos — NUNCA commitear
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+service-account*.json
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.venv/
+venv/
+.uv/
+*.egg-info/
+dist/
+build/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+htmlcov/
+.coverage
+coverage.xml
+
+# Node
+node_modules/
+.next/
+.turbo/
+*.tsbuildinfo
+
+# Documentos reales de municipios — NUNCA subir datos reales de ciudadanos
+knowledge-base/*/ordenanzas/*.pdf
+knowledge-base/*/plantillas/
+!knowledge-base/template/
+
+# Logs
+*.log
+logs/
+
+# Docker volumes (datos locales)
+infra/postgres/data/
+infra/redis/data/
+
+# IDEs
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Alembic — solo commitear el directorio, no los datos generados
+apps/api/src/db/migrations/versions/*.py.bak

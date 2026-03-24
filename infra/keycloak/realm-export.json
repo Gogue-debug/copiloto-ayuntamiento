@@ -1,0 +1,77 @@
+{
+  "realm": "copiloto",
+  "displayName": "Copiloto Administrativo",
+  "enabled": true,
+  "sslRequired": "external",
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": true,
+  "editUsernameAllowed": false,
+  "bruteForceProtected": true,
+  "clients": [
+    {
+      "clientId": "copiloto-api",
+      "name": "Copiloto API (Backend)",
+      "enabled": true,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "changeme_dev",
+      "bearerOnly": true,
+      "publicClient": false,
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": true,
+      "protocol": "openid-connect"
+    },
+    {
+      "clientId": "copiloto-web",
+      "name": "Copiloto Web (Frontend)",
+      "enabled": true,
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "protocol": "openid-connect",
+      "redirectUris": [
+        "http://localhost:3000/*",
+        "https://*.copiloto.es/*"
+      ],
+      "webOrigins": [
+        "http://localhost:3000",
+        "https://*.copiloto.es"
+      ]
+    }
+  ],
+  "roles": {
+    "realm": [
+      {
+        "name": "ciudadano",
+        "description": "Ciudadano que accede al portal de trámites"
+      },
+      {
+        "name": "funcionario",
+        "description": "Empleado municipal con acceso al back-office"
+      },
+      {
+        "name": "secretario",
+        "description": "Secretario municipal — puede aprobar y firmar resoluciones"
+      },
+      {
+        "name": "alcalde",
+        "description": "Alcalde — puede firmar resoluciones de máximo rango"
+      },
+      {
+        "name": "admin_municipio",
+        "description": "Administrador del municipio — gestiona usuarios y configuración"
+      },
+      {
+        "name": "superadmin",
+        "description": "Administrador de la plataforma — gestiona todos los municipios"
+      }
+    ]
+  },
+  "passwordPolicy": "length(8) and upperCase(1) and lowerCase(1) and digits(1)",
+  "accessTokenLifespan": 300,
+  "refreshTokenMaxReuse": 0,
+  "ssoSessionMaxLifespan": 36000
+}
