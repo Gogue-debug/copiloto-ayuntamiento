@@ -3,474 +3,547 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Protocolo Fast-Track: Cierre y Despliegue de Proyectos (Ayuntamientos)</title>
-    <!-- Tailwind CSS CDN -->
+    <title>CRM Fast-Track: Proyectos Municipales</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-        }
-        .step-active {
-            border-color: #3b82f6;
-            background-color: #eff6ff;
-        }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
         @media print {
-            .no-print {
-                display: none !important;
-            }
-            body {
-                background-color: white !important;
-            }
-            .print-card {
-                border: 1px solid #e5e7eb !important;
-                box-shadow: none !important;
-            }
+            .no-print { display: none !important; }
+            body { background-color: white !important; }
         }
+        .modal-backdrop { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); }
+        .stage-bar { transition: width 0.6s ease; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen antialiased">
 
-    <!-- HEADER / HERO -->
-    <header class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white py-10 px-4 shadow-md relative overflow-hidden">
+<!-- ==================== VISTA: DASHBOARD ==================== -->
+<div id="view-dashboard">
+    <header class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white py-8 px-4 shadow-md relative overflow-hidden">
         <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-blue-900/40 via-transparent to-transparent pointer-events-none"></div>
-        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative z-10">
-            <div>
-                <span class="bg-blue-500/20 text-blue-300 border border-blue-500/30 text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wider">Protocolo Comercial Fast-Track</span>
-                <h1 class="text-3xl md:text-4xl font-extrabold mt-2 tracking-tight">Cierre y Despliegue de Proyectos Municipales</h1>
-                <p class="text-slate-300 mt-2 text-sm md:text-base max-w-2xl">Estructura optimizada para comprimir plazos de licitación e instalación de agentes inteligentes (Claude + RAG + Twilio) en administraciones públicas.</p>
+        <div class="max-w-6xl mx-auto relative z-10">
+            <span class="bg-blue-500/20 text-blue-300 border border-blue-500/30 text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wider">CRM Fast-Track</span>
+            <h1 class="text-3xl md:text-4xl font-extrabold mt-2 tracking-tight">Proyectos Municipales</h1>
+            <p class="text-slate-300 mt-2 text-sm max-w-2xl">Gestiona el pipeline comercial de cada ayuntamiento de forma independiente.</p>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 py-8">
+        <!-- KPIs globales -->
+        <section id="global-kpis" class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8"></section>
+
+        <!-- Botón añadir + grid de proyectos -->
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-lg font-bold text-slate-800">Todos los Proyectos</h2>
+            <button onclick="openNewProjectModal()" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-5 py-2.5 rounded-xl flex items-center gap-2 transition shadow-sm">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                Nuevo Proyecto
+            </button>
+        </div>
+
+        <div id="projects-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+
+        <!-- Empty state -->
+        <div id="empty-state" class="hidden text-center py-20">
+            <div class="bg-slate-100 w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <svg class="w-10 h-10 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
             </div>
-            <div class="no-print bg-white/10 backdrop-blur-md p-4 rounded-xl border border-white/10 w-full md:w-auto">
-                <label class="block text-xs text-slate-300 font-semibold mb-2">FECHA DE INICIO DE LA ETAPA 1:</label>
-                <div class="flex gap-2">
-                    <input type="date" id="base-date" class="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-full" value="">
-                    <button onclick="resetDates()" class="bg-slate-700 hover:bg-slate-600 px-3 py-2 rounded-lg text-xs transition duration-200" title="Restablecer a hoy">
-                        Hoy
-                    </button>
+            <h3 class="text-lg font-bold text-slate-700 mb-1">Sin proyectos todavía</h3>
+            <p class="text-sm text-slate-500 mb-4">Pulsa "Nuevo Proyecto" para empezar a gestionar tu primer ayuntamiento.</p>
+        </div>
+    </main>
+</div>
+
+<!-- ==================== VISTA: PROYECTO DETALLE ==================== -->
+<div id="view-project" class="hidden">
+    <header class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white py-6 px-4 shadow-md relative overflow-hidden">
+        <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-blue-900/40 via-transparent to-transparent pointer-events-none"></div>
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-4 relative z-10">
+            <div class="flex items-center gap-4">
+                <button onclick="goToDashboard()" class="bg-white/10 hover:bg-white/20 p-2 rounded-lg transition" title="Volver al dashboard">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                </button>
+                <div>
+                    <span class="bg-blue-500/20 text-blue-300 border border-blue-500/30 text-[10px] font-semibold px-2 py-0.5 rounded-full uppercase tracking-wider" id="proj-stage-badge">Etapa 1</span>
+                    <h1 class="text-2xl md:text-3xl font-extrabold mt-1 tracking-tight" id="proj-header-name">Ayuntamiento</h1>
+                    <p class="text-slate-400 text-xs mt-0.5" id="proj-header-contact"></p>
                 </div>
-                <p class="text-[10px] text-slate-400 mt-2">Introduce la fecha de presentación para estimar todo el calendario.</p>
+            </div>
+            <div class="flex gap-2 no-print">
+                <button onclick="openEditProjectModal()" class="bg-white/10 hover:bg-white/20 px-3 py-2 rounded-lg text-xs transition flex items-center gap-1.5">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                    Editar
+                </button>
+                <button onclick="window.print()" class="bg-white/10 hover:bg-white/20 px-3 py-2 rounded-lg text-xs transition flex items-center gap-1.5">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                    PDF
+                </button>
+                <button onclick="confirmDeleteProject()" class="bg-red-500/20 hover:bg-red-500/30 text-red-300 px-3 py-2 rounded-lg text-xs transition flex items-center gap-1.5">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                    Eliminar
+                </button>
             </div>
         </div>
     </header>
 
-    <!-- MAIN CONTAINER -->
-    <main class="max-w-6xl mx-auto px-4 py-8">
+    <!-- Barra de progreso global -->
+    <div class="bg-white border-b border-slate-200 no-print">
+        <div class="max-w-6xl mx-auto px-4 py-3">
+            <div class="flex items-center justify-between mb-1.5">
+                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Progreso General</span>
+                <span class="text-xs font-bold text-blue-600" id="proj-progress-pct">0%</span>
+            </div>
+            <div class="w-full bg-slate-100 rounded-full h-2">
+                <div id="proj-progress-bar" class="stage-bar bg-gradient-to-r from-blue-500 to-indigo-500 h-2 rounded-full" style="width: 0%"></div>
+            </div>
+        </div>
+    </div>
 
-        <!-- METRICAS DE AGILIDAD -->
-        <section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 no-print">
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4">
-                <div class="p-3 bg-blue-50 text-blue-600 rounded-xl">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                </div>
-                <div>
-                    <h3 class="text-xs text-slate-500 uppercase font-bold tracking-wider">Meta Comercial</h3>
-                    <p class="text-xl font-bold text-slate-800">Cierre en 30-33 Días</p>
-                    <p class="text-xs text-emerald-600 flex items-center gap-1 mt-0.5">
-                        <span>Reducción de un 45% del tiempo burocrático</span>
-                    </p>
-                </div>
-            </div>
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4">
-                <div class="p-3 bg-indigo-50 text-indigo-600 rounded-xl">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                </div>
-                <div>
-                    <h3 class="text-xs text-slate-500 uppercase font-bold tracking-wider">Arma Secreta</h3>
-                    <p class="text-xl font-bold text-slate-800">Pliego Técnico Pre-hecho</p>
-                    <p class="text-xs text-slate-500 mt-0.5">Entregado en la Etapa 2 de Venta</p>
-                </div>
-            </div>
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-4">
-                <div class="p-3 bg-emerald-50 text-emerald-600 rounded-xl">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
-                </div>
-                <div>
-                    <h3 class="text-xs text-slate-500 uppercase font-bold tracking-wider">Paralelización de Tareas</h3>
-                    <p class="text-xl font-bold text-slate-800">Recogida de Datos RAG</p>
-                    <p class="text-xs text-slate-500 mt-0.5">Avanzado antes de firmar contrato</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- PANELES DE CONTROL (TABS) -->
-        <div class="flex border-b border-slate-200 mb-6 no-print overflow-x-auto gap-2">
-            <button onclick="switchTab('tab-pipeline')" id="btn-tab-pipeline" class="tab-btn px-4 py-2 text-sm font-semibold border-b-2 border-blue-600 text-blue-600 whitespace-nowrap">
-                Pipeline Temporal
-            </button>
-            <button onclick="switchTab('tab-documentos')" id="btn-tab-documentos" class="tab-btn px-4 py-2 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-800 whitespace-nowrap">
-                Packs de Documentación
-            </button>
-            <button onclick="switchTab('tab-comunicacion')" id="btn-tab-comunicacion" class="tab-btn px-4 py-2 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-800 whitespace-nowrap">
-                Plantillas de Correo
-            </button>
+    <main class="max-w-6xl mx-auto px-4 py-6">
+        <!-- Tabs -->
+        <div class="flex border-b border-slate-200 mb-6 no-print overflow-x-auto gap-1">
+            <button onclick="switchProjectTab('ptab-pipeline')" id="btn-ptab-pipeline" class="ptab-btn px-4 py-2 text-sm font-semibold border-b-2 border-blue-600 text-blue-600 whitespace-nowrap">Pipeline</button>
+            <button onclick="switchProjectTab('ptab-docs')" id="btn-ptab-docs" class="ptab-btn px-4 py-2 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-800 whitespace-nowrap">Documentos</button>
+            <button onclick="switchProjectTab('ptab-emails')" id="btn-ptab-emails" class="ptab-btn px-4 py-2 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-800 whitespace-nowrap">Correos</button>
+            <button onclick="switchProjectTab('ptab-notes')" id="btn-ptab-notes" class="ptab-btn px-4 py-2 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-800 whitespace-nowrap">Notas</button>
         </div>
 
-        <!-- SECCIÓN 1: PIPELINE TEMPORAL -->
-        <section id="tab-pipeline" class="tab-content block">
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden print-card">
-                <div class="p-6 bg-slate-50/50 border-b border-slate-100 flex justify-between items-center flex-wrap gap-4">
-                    <div>
-                        <h2 class="text-lg font-bold text-slate-800">Cronograma de Cierre y Despliegue Consolidado</h2>
-                        <p class="text-xs text-slate-500">Estimación temporal calculada en base a la fecha de inicio del protocolo.</p>
-                    </div>
-                    <button onclick="window.print()" class="no-print bg-white hover:bg-slate-50 border border-slate-200 px-4 py-2 rounded-lg text-sm text-slate-700 font-medium flex items-center gap-2 transition duration-200">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
-                        Imprimir / Guardar PDF
-                    </button>
+        <!-- TAB: Pipeline -->
+        <section id="ptab-pipeline" class="ptab-content"></section>
+
+        <!-- TAB: Documentos -->
+        <section id="ptab-docs" class="ptab-content hidden"></section>
+
+        <!-- TAB: Correos -->
+        <section id="ptab-emails" class="ptab-content hidden"></section>
+
+        <!-- TAB: Notas -->
+        <section id="ptab-notes" class="ptab-content hidden"></section>
+    </main>
+</div>
+
+<!-- ==================== MODAL: Crear/Editar Proyecto ==================== -->
+<div id="modal-project" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
+        <div class="p-6 border-b border-slate-100">
+            <h2 id="modal-title" class="text-lg font-bold text-slate-800">Nuevo Proyecto</h2>
+        </div>
+        <form id="project-form" class="p-6 space-y-4" onsubmit="saveProject(event)">
+            <input type="hidden" id="pf-id">
+            <div>
+                <label class="block text-xs font-bold text-slate-600 mb-1">Nombre del Municipio *</label>
+                <input type="text" id="pf-name" required placeholder="Ej: Ayuntamiento de Godella" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Persona de Contacto</label>
+                    <input type="text" id="pf-contact" placeholder="Concejal/a o técnico/a" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
-
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="bg-slate-100/70 border-b border-slate-200 text-xs font-bold text-slate-600 uppercase tracking-wider">
-                                <th class="py-4 px-6 w-1/12 text-center">Etapa</th>
-                                <th class="py-4 px-6 w-3/12">Objetivo Clave</th>
-                                <th class="py-4 px-6 w-3/12">Duración & Calendario Estimado</th>
-                                <th class="py-4 px-6 w-5/12">Entregable Principal para el Ayuntamiento</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-100 text-sm">
-                            <!-- ETAPA 1 -->
-                            <tr class="hover:bg-slate-50/50 transition">
-                                <td class="py-6 px-6 text-center">
-                                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-700 font-bold">1</span>
-                                </td>
-                                <td class="py-6 px-6">
-                                    <span class="block font-bold text-slate-900 mb-1">Presentación</span>
-                                    <span class="text-xs text-slate-500">Gancho del valor potencial para cierre de reunión presencial/remota.</span>
-                                </td>
-                                <td class="py-6 px-6 font-medium text-slate-700">
-                                    <div class="flex items-center gap-2">
-                                        <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                                        <span>1 Día</span>
-                                    </div>
-                                    <span class="text-xs text-slate-400 block mt-1">(Día 1 desde la presentación)</span>
-                                    <span id="date-stg1" class="text-xs font-semibold text-blue-600 block mt-1 bg-blue-50/50 px-2 py-0.5 rounded w-max"></span>
-                                </td>
-                                <td class="py-6 px-6">
-                                    <div class="flex items-start gap-3">
-                                        <div class="bg-slate-100 p-2 rounded-lg mt-0.5">
-                                            <svg class="w-4 h-4 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                                        </div>
-                                        <div>
-                                            <p class="font-semibold text-slate-800">Dossier Ejecutivo y Hoja de Ruta</p>
-                                            <p class="text-xs text-slate-500 mt-0.5">Modelo conceptual que propone una primera línea de defensa para ciberatención ciudadana eficaz.</p>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-
-                            <!-- ETAPA 2 -->
-                            <tr class="hover:bg-slate-50/50 transition bg-blue-50/10">
-                                <td class="py-6 px-6 text-center">
-                                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 font-bold">2</span>
-                                </td>
-                                <td class="py-6 px-6">
-                                    <span class="block font-bold text-slate-900 mb-1">Venta</span>
-                                    <span class="text-xs text-slate-500">Transmitir el valor definitivo del agente inteligente y semicerrar el proyecto.</span>
-                                </td>
-                                <td class="py-6 px-6 font-medium text-slate-700">
-                                    <div class="flex items-center gap-2">
-                                        <svg class="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                                        <span>3 - 7 Días</span>
-                                    </div>
-                                    <span class="text-xs text-slate-400 block mt-1">(Días 2 al 8 acumulados)</span>
-                                    <span id="date-stg2" class="text-xs font-semibold text-indigo-600 block mt-1 bg-indigo-50/50 px-2 py-0.5 rounded w-max"></span>
-                                </td>
-                                <td class="py-6 px-6">
-                                    <div class="flex items-start gap-3">
-                                        <div class="bg-indigo-50 p-2 rounded-lg mt-0.5">
-                                            <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"></path></svg>
-                                        </div>
-                                        <div>
-                                            <p class="font-semibold text-slate-800">Demos de Testeo + Plantilla de Pliego Técnico (PPT)</p>
-                                            <p class="text-xs text-slate-500 mt-0.5">Acceso activo a entornos de pruebas. Entregamos el borrador del pliego técnico para ahorrar meses de redacción al consistorio.</p>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-
-                            <!-- ETAPA 3 -->
-                            <tr class="hover:bg-slate-50/50 transition">
-                                <td class="py-6 px-6 text-center">
-                                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-cyan-100 text-cyan-700 font-bold">3</span>
-                                </td>
-                                <td class="py-6 px-6">
-                                    <span class="block font-bold text-slate-900 mb-1">Co-creación</span>
-                                    <span class="text-xs text-slate-500">Conseguir la máxima información para ir diseñando los agentes deseados con precisión matemática.</span>
-                                </td>
-                                <td class="py-6 px-6 font-medium text-slate-700">
-                                    <div class="flex items-center gap-2">
-                                        <svg class="w-4 h-4 text-cyan-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                                        <span>3 - 5 Días</span>
-                                    </div>
-                                    <span class="text-xs text-slate-400 block mt-1">(Días 9 al 13 acumulados)</span>
-                                    <span id="date-stg3" class="text-xs font-semibold text-cyan-600 block mt-1 bg-cyan-50/50 px-2 py-0.5 rounded w-max"></span>
-                                </td>
-                                <td class="py-6 px-6">
-                                    <div class="flex items-start gap-3">
-                                        <div class="bg-slate-100 p-2 rounded-lg mt-0.5">
-                                            <svg class="w-4 h-4 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
-                                        </div>
-                                        <div>
-                                            <p class="font-semibold text-slate-800">Matriz de Alcance y Formulario de Recogida de Datos</p>
-                                            <p class="text-xs text-slate-500 mt-0.5">Validación de los 3 casos de uso específicos y recolección de URLs de su portal, PDFs de ordenanzas y bases locales.</p>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-
-                            <!-- ETAPA 4 -->
-                            <tr class="hover:bg-slate-50/50 transition bg-emerald-50/5">
-                                <td class="py-6 px-6 text-center">
-                                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-emerald-100 text-emerald-700 font-bold">4</span>
-                                </td>
-                                <td class="py-6 px-6">
-                                    <span class="block font-bold text-slate-900 mb-1">Licitación</span>
-                                    <span class="text-xs text-slate-500">Tramitación del expediente de contratación municipal y cierre del contrato.</span>
-                                </td>
-                                <td class="py-6 px-6 font-medium text-slate-700">
-                                    <div class="flex items-center gap-2">
-                                        <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                                        <span>15 - 20 Días</span>
-                                    </div>
-                                    <span class="text-xs text-slate-400 block mt-1">(Días 14 al 33 acumulados)</span>
-                                    <span id="date-stg4" class="text-xs font-semibold text-emerald-600 block mt-1 bg-emerald-50/50 px-2 py-0.5 rounded w-max"></span>
-                                </td>
-                                <td class="py-6 px-6">
-                                    <div class="flex items-start gap-3">
-                                        <div class="bg-emerald-50 p-2 rounded-lg mt-0.5">
-                                            <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
-                                        </div>
-                                        <div>
-                                            <p class="font-semibold text-slate-800">Contrato de Desarrollo y Acuerdo de Soporte Anual</p>
-                                            <p class="text-xs text-slate-500 mt-0.5">Formalización legal de los costes de implantación y del modelo de soporte anual recurrente.</p>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-
-                            <!-- ETAPA 5 -->
-                            <tr class="hover:bg-slate-50/50 transition bg-slate-50/30">
-                                <td class="py-6 px-6 text-center">
-                                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-purple-100 text-purple-700 font-bold">5</span>
-                                </td>
-                                <td class="py-6 px-6">
-                                    <span class="block font-bold text-slate-900 mb-1">Instalación</span>
-                                    <span class="text-xs text-slate-500">Despliegue de los sistemas, integración de APIs y puesta en producción.</span>
-                                </td>
-                                <td class="py-6 px-6 font-medium text-slate-700">
-                                    <div class="flex items-center gap-2">
-                                        <svg class="w-4 h-4 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                                        <span>2 - 6 Semanas</span>
-                                    </div>
-                                    <span class="text-xs text-slate-400 block mt-1">(De la semana 5 a la 11 acumuladas)</span>
-                                    <span id="date-stg5" class="text-xs font-semibold text-purple-600 block mt-1 bg-purple-50/50 px-2 py-0.5 rounded w-max"></span>
-                                </td>
-                                <td class="py-6 px-6">
-                                    <div class="flex items-start gap-3">
-                                        <div class="bg-purple-50 p-2 rounded-lg mt-0.5">
-                                            <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 9.172V5L8 4z"></path></svg>
-                                        </div>
-                                        <div>
-                                            <p class="font-semibold text-slate-800">Despliegue e Integración de Canales Inteligentes</p>
-                                            <p class="text-xs text-slate-500 mt-0.5">Habilitación del Chatbot Web, Callbot (Twilio Voice) y asistente de correo. Entrega de manuales.</p>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Email de Contacto</label>
+                    <input type="email" id="pf-email" placeholder="concejal@municipio.es" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
             </div>
-        </section>
-
-        <!-- SECCIÓN 2: PACKS DE DOCUMENTOS -->
-        <section id="tab-documentos" class="tab-content hidden">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- PACK 1 -->
-                <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm flex flex-col justify-between hover:shadow-md transition">
-                    <div>
-                        <div class="flex justify-between items-start mb-4">
-                            <span class="bg-blue-50 text-blue-700 text-xs font-bold px-2.5 py-1 rounded-md">ETAPA 1</span>
-                            <span class="text-xs text-slate-400">Dossier Inicial</span>
-                        </div>
-                        <h3 class="font-bold text-slate-800 text-base mb-2">Pack 1: Presentación de Impacto</h3>
-                        <p class="text-xs text-slate-500 mb-4">Objetivo: Conseguir la atención del concejal y cerrar la reunión técnica de inmediato.</p>
-
-                        <ul class="space-y-2 text-xs text-slate-600 mb-6">
-                            <li class="flex items-center gap-2">
-                                <input type="checkbox" class="rounded text-blue-500" checked>
-                                <span><strong>Hoja de Ruta de Proyecto:</strong> Enfoque conceptual.</span>
-                            </li>
-                            <li class="flex items-center gap-2">
-                                <input type="checkbox" class="rounded text-blue-500" checked>
-                                <span><strong>Resumen de Beneficios:</strong> Defensa inicial del ciudadano.</span>
-                            </li>
-                            <li class="flex items-center gap-2">
-                                <input type="checkbox" class="rounded text-blue-500">
-                                <span><strong>Estudio de Viabilidad Rápida:</strong> Datos básicos del municipio.</span>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="bg-slate-50 -mx-6 -mb-6 p-4 rounded-b-2xl border-t border-slate-100">
-                        <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Impacto Comercial</span>
-                        <span class="text-xs text-slate-600 font-medium">El concejal no lee pliegos complejos, lee soluciones de atención vecinal directa.</span>
-                    </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Teléfono</label>
+                    <input type="tel" id="pf-phone" placeholder="612 345 678" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
-
-                <!-- PACK 2 -->
-                <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm flex flex-col justify-between hover:shadow-md transition">
-                    <div>
-                        <div class="flex justify-between items-start mb-4">
-                            <span class="bg-indigo-50 text-indigo-700 text-xs font-bold px-2.5 py-1 rounded-md">ETAPA 2</span>
-                            <span class="text-xs text-slate-400">Kit de Venta</span>
-                        </div>
-                        <h3 class="font-bold text-slate-800 text-base mb-2">Pack 2: Caja de Herramientas</h3>
-                        <p class="text-xs text-slate-500 mb-4">Objetivo: Generar "Efecto WoW" y atajar la principal fricción municipal: redactar pliegos.</p>
-
-                        <ul class="space-y-2 text-xs text-slate-600 mb-6">
-                            <li class="flex items-center gap-2">
-                                <input type="checkbox" class="rounded text-indigo-500" checked>
-                                <span><strong>Enlaces a Demos Activas:</strong> Chat, Callbot y Email.</span>
-                            </li>
-                            <li class="flex items-center gap-2">
-                                <input type="checkbox" class="rounded text-indigo-500" checked>
-                                <span><strong>Guía de Arquitectura:</strong> Claude + RAG + Twilio.</span>
-                            </li>
-                            <li class="flex items-center gap-2">
-                                <input type="checkbox" class="rounded text-indigo-500" checked>
-                                <span><strong>Plantilla de Prescripciones Técnicas (PPT):</strong> Clave!</span>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="bg-slate-50 -mx-6 -mb-6 p-4 rounded-b-2xl border-t border-slate-100">
-                        <span class="text-[11px] font-bold text-indigo-400 uppercase tracking-wider block">Tip Técnico</span>
-                        <span class="text-xs text-indigo-800 font-semibold flex items-center gap-1">
-                            <span>Ahorra más de 30 días de burocracia.</span>
-                        </span>
-                    </div>
-                </div>
-
-                <!-- PACK 3 -->
-                <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm flex flex-col justify-between hover:shadow-md transition">
-                    <div>
-                        <div class="flex justify-between items-start mb-4">
-                            <span class="bg-cyan-50 text-cyan-700 text-xs font-bold px-2.5 py-1 rounded-md">ETAPA 3</span>
-                            <span class="text-xs text-slate-400">Co-diseño</span>
-                        </div>
-                        <h3 class="font-bold text-slate-800 text-base mb-2">Pack 3: Definición del Proyecto</h3>
-                        <p class="text-xs text-slate-500 mb-4">Objetivo: Diseñar el flujo de información de los agentes y asegurar la calidad del RAG.</p>
-
-                        <ul class="space-y-2 text-xs text-slate-600 mb-6">
-                            <li class="flex items-center gap-2">
-                                <input type="checkbox" class="rounded text-cyan-500" checked>
-                                <span><strong>Matriz de Casos de Uso:</strong> Confirmación de alcance.</span>
-                            </li>
-                            <li class="flex items-center gap-2">
-                                <input type="checkbox" class="rounded text-cyan-500" checked>
-                                <span><strong>Formulario de Carga de Datos:</strong> URLs y PDFs clave.</span>
-                            </li>
-                            <li class="flex items-center gap-2">
-                                <input type="checkbox" class="rounded text-cyan-500">
-                                <span><strong>Guía de Seguridad y Protección de Datos:</strong> RGPD.</span>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="bg-slate-50 -mx-6 -mb-6 p-4 rounded-b-2xl border-t border-slate-100">
-                        <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Ventaja Comercial</span>
-                        <span class="text-xs text-slate-600 font-medium">Trabajamos el desarrollo en paralelo a la firma legal para acelerar el despliegue.</span>
-                    </div>
-                </div>
-
-                <!-- PACK 4 -->
-                <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm flex flex-col justify-between hover:shadow-md transition mt-4 md:mt-0">
-                    <div>
-                        <div class="flex justify-between items-start mb-4">
-                            <span class="bg-emerald-50 text-emerald-700 text-xs font-bold px-2.5 py-1 rounded-md">ETAPA 4</span>
-                            <span class="text-xs text-slate-400">Cierre Contractual</span>
-                        </div>
-                        <h3 class="font-bold text-slate-800 text-base mb-2">Pack 4: Licitación Legal</h3>
-                        <p class="text-xs text-slate-500 mb-4">Objetivo: Adjudicar formalmente el contrato y blindar el servicio y soporte recurrente.</p>
-
-                        <ul class="space-y-2 text-xs text-slate-600 mb-6">
-                            <li class="flex items-center gap-2">
-                                <input type="checkbox" class="rounded text-emerald-500" checked>
-                                <span><strong>Oferta Económica Final:</strong> Desglose completo.</span>
-                            </li>
-                            <li class="flex items-center gap-2">
-                                <input type="checkbox" class="rounded text-emerald-500" checked>
-                                <span><strong>Contrato de Soporte Técnico Anual:</strong> Mantenimiento.</span>
-                            </li>
-                            <li class="flex items-center gap-2">
-                                <input type="checkbox" class="rounded text-emerald-500">
-                                <span><strong>Acuerdo de Nivel de Servicio (SLA):</strong> Compromisos.</span>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="bg-slate-50 -mx-6 -mb-6 p-4 rounded-b-2xl border-t border-slate-100">
-                        <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Modelo de Negocio</span>
-                        <span class="text-xs text-slate-600 font-medium">Implantación de agentes + licencia mensual o anual recurrente de soporte.</span>
-                    </div>
-                </div>
-
-                <!-- PACK 5 -->
-                <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm flex flex-col justify-between hover:shadow-md transition mt-4 md:mt-0">
-                    <div>
-                        <div class="flex justify-between items-start mb-4">
-                            <span class="bg-purple-50 text-purple-700 text-xs font-bold px-2.5 py-1 rounded-md">ETAPA 5</span>
-                            <span class="text-xs text-slate-400">Despliegue</span>
-                        </div>
-                        <h3 class="font-bold text-slate-800 text-base mb-2">Pack 5: Entrega del Proyecto</h3>
-                        <p class="text-xs text-slate-500 mb-4">Objetivo: Poner en producción las soluciones y capacitar a los funcionarios para su adopción.</p>
-
-                        <ul class="space-y-2 text-xs text-slate-600 mb-6">
-                            <li class="flex items-center gap-2">
-                                <input type="checkbox" class="rounded text-purple-500" checked>
-                                <span><strong>Cronograma de Despliegue Técnico:</strong> Detalle diario.</span>
-                            </li>
-                            <li class="flex items-center gap-2">
-                                <input type="checkbox" class="rounded text-purple-500" checked>
-                                <span><strong>Manual de Operación de Casos Derivados:</strong> Para personal.</span>
-                            </li>
-                            <li class="flex items-center gap-2">
-                                <input type="checkbox" class="rounded text-purple-500">
-                                <span><strong>Dashboard de Rendimiento:</strong> Analíticas de IA.</span>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="bg-slate-50 -mx-6 -mb-6 p-4 rounded-b-2xl border-t border-slate-100">
-                        <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Adopción de Usuarios</span>
-                        <span class="text-xs text-slate-600 font-medium">El éxito radica en que el personal comprenda que el agente es un aliado, no un sustituto.</span>
-                    </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Fecha de Inicio</label>
+                    <input type="date" id="pf-start-date" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
             </div>
-        </section>
+            <div>
+                <label class="block text-xs font-bold text-slate-600 mb-1">Etapa Actual</label>
+                <select id="pf-stage" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="1">1 - Presentación</option>
+                    <option value="2">2 - Venta</option>
+                    <option value="3">3 - Co-creación</option>
+                    <option value="4">4 - Licitación</option>
+                    <option value="5">5 - Instalación</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-600 mb-1">Observaciones</label>
+                <textarea id="pf-notes" rows="2" placeholder="Detalles relevantes del proyecto..." class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+            </div>
+            <div class="flex justify-end gap-3 pt-2">
+                <button type="button" onclick="closeModal()" class="px-4 py-2 text-sm text-slate-600 hover:text-slate-800 transition">Cancelar</button>
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-6 py-2 rounded-lg transition">Guardar Proyecto</button>
+            </div>
+        </form>
+    </div>
+</div>
 
-        <!-- SECCIÓN 3: CORREOS DE COMUNICACIÓN -->
-        <section id="tab-comunicacion" class="tab-content hidden">
-            <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden print-card">
-                <div class="p-6 border-b border-slate-100">
-                    <h2 class="text-lg font-bold text-slate-800">Plantillas de Email listas para Enviar</h2>
-                    <p class="text-xs text-slate-500">Comunícate eficazmente con los consistorios en cada etapa clave del protocolo.</p>
+<!-- ==================== MODAL: Subir Documento ==================== -->
+<div id="modal-upload" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4">
+        <div class="p-6 border-b border-slate-100">
+            <h2 class="text-lg font-bold text-slate-800">Adjuntar Documento</h2>
+            <p class="text-xs text-slate-500 mt-1" id="upload-context"></p>
+        </div>
+        <form id="upload-form" class="p-6 space-y-4" onsubmit="saveDocument(event)">
+            <input type="hidden" id="uf-pack">
+            <input type="hidden" id="uf-item">
+            <div>
+                <label class="block text-xs font-bold text-slate-600 mb-1">Nombre del Archivo</label>
+                <input type="text" id="uf-filename" required placeholder="Ej: Pliego_tecnico_v2.pdf" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-600 mb-1">URL o Ruta del Archivo</label>
+                <input type="text" id="uf-url" placeholder="https://drive.google.com/... o ruta local" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-600 mb-1">Nota</label>
+                <input type="text" id="uf-note" placeholder="Versión final enviada al concejal" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div class="flex justify-end gap-3 pt-2">
+                <button type="button" onclick="closeUploadModal()" class="px-4 py-2 text-sm text-slate-600 hover:text-slate-800 transition">Cancelar</button>
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-6 py-2 rounded-lg transition">Adjuntar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="fixed bottom-5 right-5 bg-slate-900 text-white text-xs font-semibold px-4 py-3 rounded-xl shadow-lg flex items-center gap-2 transform translate-y-20 opacity-0 transition-all duration-300 no-print z-50">
+    <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+    <span id="toast-message"></span>
+</div>
+
+<script>
+// ===================== DATA LAYER =====================
+const STORAGE_KEY = 'crm_fasttrack_projects';
+const STAGE_NAMES = ['','Presentación','Venta','Co-creación','Licitación','Instalación'];
+const STAGE_COLORS = ['','blue','indigo','cyan','emerald','purple'];
+const STAGE_DURATIONS = [
+    null,
+    { label: '1 Día', desc: 'Día 1', startOffset: 0, endOffset: 0 },
+    { label: '3 - 7 Días', desc: 'Días 2 al 8', startOffset: 1, endOffset: 7 },
+    { label: '3 - 5 Días', desc: 'Días 9 al 13', startOffset: 8, endOffset: 12 },
+    { label: '15 - 20 Días', desc: 'Días 14 al 33', startOffset: 13, endOffset: 32 },
+    { label: '2 - 6 Semanas', desc: 'Semana 5 a 11', startOffset: 28, endOffset: 70 }
+];
+const STAGE_OBJECTIVES = [
+    '',
+    'Gancho del valor potencial para cierre de reunión presencial/remota.',
+    'Transmitir el valor definitivo del agente inteligente y semicerrar el proyecto.',
+    'Conseguir la máxima información para ir diseñando los agentes deseados con precisión matemática.',
+    'Tramitación del expediente de contratación municipal y cierre del contrato.',
+    'Despliegue de los sistemas, integración de APIs y puesta en producción.'
+];
+const STAGE_DELIVERABLES = [
+    '',
+    'Dossier Ejecutivo y Hoja de Ruta',
+    'Demos de Testeo + Plantilla de Pliego Técnico (PPT)',
+    'Matriz de Alcance y Formulario de Recogida de Datos',
+    'Contrato de Desarrollo y Acuerdo de Soporte Anual',
+    'Despliegue e Integración de Canales Inteligentes'
+];
+
+const DOC_PACKS = [
+    null,
+    { title: 'Pack 1: Presentación de Impacto', items: ['Hoja de Ruta de Proyecto', 'Resumen de Beneficios', 'Estudio de Viabilidad Rápida'] },
+    { title: 'Pack 2: Caja de Herramientas', items: ['Enlaces a Demos Activas', 'Guía de Arquitectura', 'Plantilla de Prescripciones Técnicas (PPT)'] },
+    { title: 'Pack 3: Definición del Proyecto', items: ['Matriz de Casos de Uso', 'Formulario de Carga de Datos', 'Guía de Seguridad y Protección de Datos'] },
+    { title: 'Pack 4: Licitación Legal', items: ['Oferta Económica Final', 'Contrato de Soporte Técnico Anual', 'Acuerdo de Nivel de Servicio (SLA)'] },
+    { title: 'Pack 5: Entrega del Proyecto', items: ['Cronograma de Despliegue Técnico', 'Manual de Operación de Casos Derivados', 'Dashboard de Rendimiento'] }
+];
+
+function loadProjects() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+    catch { return []; }
+}
+function saveProjects(projects) { localStorage.setItem(STORAGE_KEY, JSON.stringify(projects)); }
+function getProject(id) { return loadProjects().find(p => p.id === id); }
+function updateProject(id, updates) {
+    const projects = loadProjects();
+    const idx = projects.findIndex(p => p.id === id);
+    if (idx >= 0) { projects[idx] = { ...projects[idx], ...updates }; saveProjects(projects); }
+}
+
+let currentProjectId = null;
+
+// ===================== DASHBOARD =====================
+function renderDashboard() {
+    const projects = loadProjects();
+    const grid = document.getElementById('projects-grid');
+    const empty = document.getElementById('empty-state');
+    const kpis = document.getElementById('global-kpis');
+
+    if (projects.length === 0) {
+        grid.innerHTML = '';
+        empty.classList.remove('hidden');
+        kpis.innerHTML = '';
+        return;
+    }
+
+    empty.classList.add('hidden');
+
+    const byStage = [0,0,0,0,0,0];
+    projects.forEach(p => byStage[p.stage]++);
+
+    kpis.innerHTML = `
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-3">
+            <div class="p-2.5 bg-blue-50 text-blue-600 rounded-xl">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+            </div>
+            <div>
+                <p class="text-2xl font-bold text-slate-800">${projects.length}</p>
+                <p class="text-[11px] text-slate-500 font-semibold uppercase tracking-wider">Proyectos Totales</p>
+            </div>
+        </div>
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-3">
+            <div class="p-2.5 bg-amber-50 text-amber-600 rounded-xl">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            </div>
+            <div>
+                <p class="text-2xl font-bold text-slate-800">${byStage[1] + byStage[2]}</p>
+                <p class="text-[11px] text-slate-500 font-semibold uppercase tracking-wider">En Fase Comercial</p>
+            </div>
+        </div>
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-3">
+            <div class="p-2.5 bg-cyan-50 text-cyan-600 rounded-xl">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+            </div>
+            <div>
+                <p class="text-2xl font-bold text-slate-800">${byStage[3] + byStage[4]}</p>
+                <p class="text-[11px] text-slate-500 font-semibold uppercase tracking-wider">En Licitación / Contrato</p>
+            </div>
+        </div>
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-3">
+            <div class="p-2.5 bg-emerald-50 text-emerald-600 rounded-xl">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            </div>
+            <div>
+                <p class="text-2xl font-bold text-slate-800">${byStage[5]}</p>
+                <p class="text-[11px] text-slate-500 font-semibold uppercase tracking-wider">En Despliegue</p>
+            </div>
+        </div>`;
+
+    grid.innerHTML = projects.map(p => {
+        const col = STAGE_COLORS[p.stage];
+        const pct = Math.round((p.stage / 5) * 100);
+        const checkedCount = Object.values(p.docs || {}).filter(d => d.checked).length;
+        const totalDocs = 15;
+        return `
+        <div onclick="openProject('${p.id}')" class="bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition cursor-pointer overflow-hidden group">
+            <div class="p-5">
+                <div class="flex justify-between items-start mb-3">
+                    <span class="bg-${col}-50 text-${col}-700 text-[11px] font-bold px-2 py-0.5 rounded-md">ETAPA ${p.stage}: ${STAGE_NAMES[p.stage]}</span>
+                    <span class="text-[10px] text-slate-400">${p.startDate ? formatDateStr(p.startDate) : 'Sin fecha'}</span>
                 </div>
+                <h3 class="font-bold text-slate-800 text-base mb-1 group-hover:text-blue-700 transition">${escHtml(p.name)}</h3>
+                <p class="text-xs text-slate-500 mb-3">${p.contact ? escHtml(p.contact) : 'Sin contacto asignado'}</p>
+                <div class="flex items-center justify-between mb-1.5">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase">Progreso</span>
+                    <span class="text-[10px] font-bold text-${col}-600">${pct}%</span>
+                </div>
+                <div class="w-full bg-slate-100 rounded-full h-1.5">
+                    <div class="stage-bar bg-${col}-500 h-1.5 rounded-full" style="width: ${pct}%"></div>
+                </div>
+            </div>
+            <div class="bg-slate-50 px-5 py-3 border-t border-slate-100 flex justify-between items-center">
+                <span class="text-[10px] text-slate-500">${checkedCount}/${totalDocs} documentos</span>
+                <svg class="w-4 h-4 text-slate-400 group-hover:text-blue-500 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+            </div>
+        </div>`;
+    }).join('');
+}
 
-                <div class="p-6 space-y-8">
-                    <!-- EMAIL 1 -->
-                    <div class="bg-slate-50 rounded-xl p-5 border border-slate-200/60">
-                        <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
-                            <span class="text-xs font-bold text-blue-700 bg-blue-100/50 px-2.5 py-1 rounded">CORREO 1: Tras primera presentación (Cierre Etapa 2)</span>
-                            <button onclick="copyToClipboard('email-text-1')" class="bg-blue-600 hover:bg-blue-700 text-white text-xs px-3 py-1.5 rounded-lg flex items-center gap-1 transition">
-                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m-5 4h5m-5 4h5m-2 5h.01"></path></svg>
-                                Copiar Correo
-                            </button>
-                        </div>
-                        <div class="text-xs font-mono text-slate-500 mb-2 border-b border-slate-200 pb-2">
-                            <strong>Asunto:</strong> Propuesta Tecnológica y Entorno Demo de IA - Ayuntamiento [Nombre]
-                        </div>
-                        <pre id="email-text-1" class="text-xs text-slate-700 whitespace-pre-wrap font-sans leading-relaxed">Estimado/a [Nombre del Concejal/Técnico],
+// ===================== PROJECT DETAIL =====================
+function openProject(id) {
+    currentProjectId = id;
+    const p = getProject(id);
+    if (!p) return;
 
-Ha sido un placer conversar brevemente acerca de cómo podemos mejorar la eficiencia en la atención al ciudadano del Ayuntamiento de [Municipio].
+    document.getElementById('view-dashboard').classList.add('hidden');
+    document.getElementById('view-project').classList.remove('hidden');
+
+    const col = STAGE_COLORS[p.stage];
+    document.getElementById('proj-header-name').textContent = p.name;
+    document.getElementById('proj-header-contact').textContent = [p.contact, p.email, p.phone].filter(Boolean).join(' | ');
+    document.getElementById('proj-stage-badge').textContent = `Etapa ${p.stage}: ${STAGE_NAMES[p.stage]}`;
+    document.getElementById('proj-stage-badge').className = `bg-${col}-500/20 text-${col}-300 border border-${col}-500/30 text-[10px] font-semibold px-2 py-0.5 rounded-full uppercase tracking-wider`;
+
+    const pct = Math.round((p.stage / 5) * 100);
+    document.getElementById('proj-progress-pct').textContent = pct + '%';
+    document.getElementById('proj-progress-bar').style.width = pct + '%';
+
+    renderPipelineTab(p);
+    renderDocsTab(p);
+    renderEmailsTab(p);
+    renderNotesTab(p);
+    switchProjectTab('ptab-pipeline');
+}
+
+function goToDashboard() {
+    currentProjectId = null;
+    document.getElementById('view-project').classList.add('hidden');
+    document.getElementById('view-dashboard').classList.remove('hidden');
+    renderDashboard();
+}
+
+// ===================== TAB: PIPELINE =====================
+function renderPipelineTab(p) {
+    const baseDate = p.startDate ? new Date(p.startDate) : new Date();
+    const customDates = p.customDates || {};
+
+    let html = `<div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+        <div class="p-5 bg-slate-50/50 border-b border-slate-100">
+            <h2 class="text-lg font-bold text-slate-800">Cronograma — ${escHtml(p.name)}</h2>
+            <p class="text-xs text-slate-500">Haz clic en las fechas para personalizarlas. Los cambios se guardan automáticamente.</p>
+        </div>
+        <div class="divide-y divide-slate-100">`;
+
+    for (let s = 1; s <= 5; s++) {
+        const dur = STAGE_DURATIONS[s];
+        const col = STAGE_COLORS[s];
+        const isActive = s === p.stage;
+        const isCompleted = s < p.stage;
+
+        const startD = customDates[`s${s}_start`] || formatISO(addDays(baseDate, dur.startOffset));
+        const endD = customDates[`s${s}_end`] || formatISO(addDays(baseDate, dur.endOffset));
+
+        html += `
+        <div class="p-5 ${isActive ? 'bg-'+col+'-50/30 border-l-4 border-'+col+'-500' : ''} ${isCompleted ? 'opacity-60' : ''} hover:bg-slate-50/50 transition">
+            <div class="flex flex-col md:flex-row md:items-center gap-4">
+                <div class="flex items-center gap-3 md:w-1/4">
+                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-full ${isCompleted ? 'bg-emerald-100 text-emerald-700' : 'bg-'+col+'-100 text-'+col+'-700'} font-bold text-sm flex-shrink-0">
+                        ${isCompleted ? '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>' : s}
+                    </span>
+                    <div>
+                        <span class="block font-bold text-slate-900 text-sm">${STAGE_NAMES[s]}</span>
+                        <span class="text-[11px] text-slate-500">${STAGE_OBJECTIVES[s].substring(0, 60)}...</span>
+                    </div>
+                </div>
+                <div class="md:w-1/4">
+                    <span class="text-xs font-semibold text-slate-600 block mb-1">${dur.label}</span>
+                    <div class="flex gap-1 items-center">
+                        <input type="date" value="${startD}" onchange="updateStageDates(${s},'start',this.value)" class="text-xs border border-slate-200 rounded px-1.5 py-1 w-[120px] focus:ring-1 focus:ring-${col}-400 focus:outline-none">
+                        <span class="text-xs text-slate-400">al</span>
+                        <input type="date" value="${endD}" onchange="updateStageDates(${s},'end',this.value)" class="text-xs border border-slate-200 rounded px-1.5 py-1 w-[120px] focus:ring-1 focus:ring-${col}-400 focus:outline-none">
+                    </div>
+                </div>
+                <div class="md:w-1/4">
+                    <p class="font-semibold text-slate-800 text-sm">${STAGE_DELIVERABLES[s]}</p>
+                </div>
+                <div class="md:w-1/4 flex justify-end">
+                    ${isCompleted
+                        ? '<span class="bg-emerald-100 text-emerald-700 text-[11px] font-bold px-2.5 py-1 rounded-md">Completada</span>'
+                        : isActive
+                            ? `<button onclick="advanceStage()" class="bg-${col}-600 hover:bg-${col}-700 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition">Avanzar Etapa</button>`
+                            : '<span class="text-[11px] text-slate-400">Pendiente</span>'
+                    }
+                </div>
+            </div>
+        </div>`;
+    }
+    html += '</div></div>';
+    document.getElementById('ptab-pipeline').innerHTML = html;
+}
+
+function updateStageDates(stage, which, value) {
+    const p = getProject(currentProjectId);
+    if (!p) return;
+    const customDates = p.customDates || {};
+    customDates[`s${stage}_${which}`] = value;
+    updateProject(currentProjectId, { customDates });
+    showToast('Fecha actualizada');
+}
+
+function advanceStage() {
+    const p = getProject(currentProjectId);
+    if (!p || p.stage >= 5) return;
+    updateProject(currentProjectId, { stage: p.stage + 1 });
+    openProject(currentProjectId);
+    showToast(`Avanzado a Etapa ${p.stage + 1}: ${STAGE_NAMES[p.stage + 1]}`);
+}
+
+// ===================== TAB: DOCS =====================
+function renderDocsTab(p) {
+    const docs = p.docs || {};
+    let html = '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">';
+
+    for (let pack = 1; pack <= 5; pack++) {
+        const dp = DOC_PACKS[pack];
+        const col = STAGE_COLORS[pack];
+        const isActive = pack <= p.stage;
+
+        html += `<div class="bg-white rounded-2xl border border-slate-100 shadow-sm ${!isActive ? 'opacity-50' : ''}">
+            <div class="p-5">
+                <div class="flex justify-between items-start mb-3">
+                    <span class="bg-${col}-50 text-${col}-700 text-[11px] font-bold px-2 py-0.5 rounded-md">ETAPA ${pack}</span>
+                </div>
+                <h3 class="font-bold text-slate-800 text-sm mb-3">${dp.title}</h3>
+                <ul class="space-y-2.5">`;
+
+        dp.items.forEach((item, idx) => {
+            const key = `p${pack}_i${idx}`;
+            const doc = docs[key] || { checked: false, files: [] };
+            const files = doc.files || [];
+
+            html += `
+                <li class="text-xs">
+                    <div class="flex items-start gap-2">
+                        <input type="checkbox" ${doc.checked ? 'checked' : ''} onchange="toggleDocCheck('${key}', this.checked)" class="rounded text-${col}-500 mt-0.5 flex-shrink-0" ${!isActive ? 'disabled' : ''}>
+                        <div class="flex-1">
+                            <span class="font-semibold text-slate-700">${item}</span>
+                            ${files.map((f, fi) => `
+                                <div class="flex items-center gap-1.5 mt-1 bg-slate-50 rounded px-2 py-1">
+                                    <svg class="w-3 h-3 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg>
+                                    <span class="text-[11px] text-slate-600 truncate flex-1">${escHtml(f.name)}</span>
+                                    <button onclick="removeDocFile('${key}',${fi})" class="text-red-400 hover:text-red-600 flex-shrink-0"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+                                </div>`).join('')}
+                            ${isActive ? `<button onclick="openUploadModal('${key}','${escAttr(item)}')" class="mt-1.5 text-[11px] text-blue-600 hover:text-blue-800 font-semibold flex items-center gap-1">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                Adjuntar
+                            </button>` : ''}
+                        </div>
+                    </div>
+                </li>`;
+        });
+
+        html += '</ul></div></div>';
+    }
+
+    html += '</div>';
+    document.getElementById('ptab-docs').innerHTML = html;
+}
+
+function toggleDocCheck(key, checked) {
+    const p = getProject(currentProjectId);
+    if (!p) return;
+    const docs = p.docs || {};
+    docs[key] = docs[key] || { checked: false, files: [] };
+    docs[key].checked = checked;
+    updateProject(currentProjectId, { docs });
+}
+
+function removeDocFile(key, fileIdx) {
+    const p = getProject(currentProjectId);
+    if (!p) return;
+    const docs = p.docs || {};
+    if (docs[key] && docs[key].files) {
+        docs[key].files.splice(fileIdx, 1);
+        updateProject(currentProjectId, { docs });
+        renderDocsTab(getProject(currentProjectId));
+        showToast('Documento eliminado');
+    }
+}
+
+// ===================== TAB: EMAILS =====================
+function renderEmailsTab(p) {
+    const emailTemplates = [
+        {
+            label: 'CORREO 1: Tras primera presentación (Cierre Etapa 2)',
+            subject: `Propuesta Tecnológica y Entorno Demo de IA - ${p.name}`,
+            color: 'blue',
+            body: `Estimado/a ${p.contact || '[Nombre del Concejal/Técnico]'},
+
+Ha sido un placer conversar brevemente acerca de cómo podemos mejorar la eficiencia en la atención al ciudadano del ${p.name || 'Ayuntamiento de [Municipio]'}.
 
 Para no restarle tiempo, y tal y como comentamos en nuestra hoja de ruta, nos gustaría facilitarle el acceso a tres entornos demostrativos que hemos preparado para que su equipo pueda comprobar la idoneidad técnica en tiempo real:
 
@@ -480,28 +553,19 @@ Para no restarle tiempo, y tal y como comentamos en nuestra hoja de ruta, nos gu
 
 Asimismo, con el fin de agilizar los plazos administrativos y evitar que su departamento tenga que invertir valiosas horas en la redacción de las bases, le adjunto junto con las demos nuestra "Plantilla de Prescripciones Técnicas (PPT)". Este borrador ya contempla la arquitectura basada en modelos de lenguaje natural (Claude) y sistemas RAG.
 
-¿Le parecería adecuado que tuviésemos una videollamada de escasos 15 minutos este próximo [Día de la semana] a las [Hora] para solventar cualquier duda inicial y parametrizar las demos a sus necesidades específicas?
+¿Le parecería adecuado que tuviésemos una videollamada de escasos 15 minutos para solventar cualquier duda inicial y parametrizar las demos a sus necesidades específicas?
 
 Quedo a su entera disposición.
 
 Atentamente,
 [Tu Nombre]
-[Tu Cargo]</pre>
-                    </div>
-
-                    <!-- EMAIL 2 -->
-                    <div class="bg-slate-50 rounded-xl p-5 border border-slate-200/60">
-                        <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
-                            <span class="text-xs font-bold text-indigo-700 bg-indigo-100/50 px-2.5 py-1 rounded">CORREO 2: Recogida de datos (Cierre Etapa 3)</span>
-                            <button onclick="copyToClipboard('email-text-2')" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs px-3 py-1.5 rounded-lg flex items-center gap-1 transition">
-                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m-5 4h5m-5 4h5m-2 5h.01"></path></svg>
-                                Copiar Correo
-                            </button>
-                        </div>
-                        <div class="text-xs font-mono text-slate-500 mb-2 border-b border-slate-200 pb-2">
-                            <strong>Asunto:</strong> Alcance de Casos de Uso y Recopilación de Información - [Municipio] IA
-                        </div>
-                        <pre id="email-text-2" class="text-xs text-slate-700 whitespace-pre-wrap font-sans leading-relaxed">Estimado/a [Nombre del Concejal/Técnico],
+[Tu Cargo]`
+        },
+        {
+            label: 'CORREO 2: Recogida de datos (Cierre Etapa 3)',
+            subject: `Alcance de Casos de Uso y Recopilación de Información - ${p.name}`,
+            color: 'indigo',
+            body: `Estimado/a ${p.contact || '[Nombre del Concejal/Técnico]'},
 
 Agradecemos enormemente sus aportaciones en nuestra última reunión de co-creación. Sin duda, enfocar el agente hacia la "subsanación cero" en la tramitación de expedientes locales marcará un hito en la atención del consistorio.
 
@@ -514,173 +578,290 @@ Le adjunto un breve formulario online de 3 preguntas donde podrá facilitarnos d
 
 Mientras el departamento administrativo inicia los trámites correspondientes para la firma de la adjudicación con el borrador de PPT que les entregamos, nuestro equipo técnico irá pre-entrenando a Claude con esta documentación para reducir la fase de despliegue al mínimo absoluto tras la firma.
 
-¿Le sería posible derivar este formulario al técnico del área para que podamos disponer de las fuentes antes de este [Día de la semana]?
+¿Le sería posible derivar este formulario al técnico del área para que podamos disponer de las fuentes a la mayor brevedad posible?
 
 Agradeciendo de antemano su confianza, reciba un cordial saludo.
 
 Atentamente,
 [Tu Nombre]
-[Tu Cargo]</pre>
-                    </div>
-                </div>
-            </div>
-        </section>
+[Tu Cargo]`
+        }
+    ];
 
-    </main>
-
-    <!-- NOTIFICACIÓN TOAST (AL COPIAR) -->
-    <div id="toast" class="fixed bottom-5 right-5 bg-slate-900 text-white text-xs font-semibold px-4 py-3 rounded-xl shadow-lg flex items-center gap-2 transform translate-y-20 opacity-0 transition-all duration-300 no-print z-50">
-        <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-        <span id="toast-message">Texto copiado con éxito</span>
-    </div>
-
-    <!-- PIE DE PÁGINA -->
-    <footer class="bg-slate-100 border-t border-slate-200 py-6 text-center text-xs text-slate-500 mt-12 no-print">
-        <div class="max-w-6xl mx-auto px-4">
-            <p>Protocolo Fast-Track de Automatización de Atención al Ciudadano — Godella.</p>
-            <p class="mt-1">Diseñado bajo tecnología Anthropic (Claude) + RAG + Twilio.</p>
+    let html = `<div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+        <div class="p-5 border-b border-slate-100">
+            <h2 class="text-lg font-bold text-slate-800">Correos Personalizados — ${escHtml(p.name)}</h2>
+            <p class="text-xs text-slate-500">Las plantillas ya incluyen el nombre del municipio y contacto. Copia y envía.</p>
         </div>
-    </footer>
+        <div class="p-5 space-y-6">`;
 
-    <!-- LÓGICA DE JAVASCRIPT -->
-    <script>
-        window.onload = function() {
-            const today = new Date();
-            const yyyy = today.getFullYear();
-            let mm = today.getMonth() + 1;
-            let dd = today.getDate();
+    emailTemplates.forEach((tpl, i) => {
+        html += `
+        <div class="bg-slate-50 rounded-xl p-5 border border-slate-200/60">
+            <div class="flex justify-between items-center mb-3 flex-wrap gap-2">
+                <span class="text-xs font-bold text-${tpl.color}-700 bg-${tpl.color}-100/50 px-2.5 py-1 rounded">${tpl.label}</span>
+                <button onclick="copyEmailText('email-proj-${i}')" class="bg-${tpl.color}-600 hover:bg-${tpl.color}-700 text-white text-xs px-3 py-1.5 rounded-lg flex items-center gap-1 transition">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m-5 4h5m-5 4h5m-2 5h.01"></path></svg>
+                    Copiar
+                </button>
+            </div>
+            <div class="text-xs font-mono text-slate-500 mb-2 border-b border-slate-200 pb-2"><strong>Asunto:</strong> ${escHtml(tpl.subject)}</div>
+            <pre id="email-proj-${i}" class="text-xs text-slate-700 whitespace-pre-wrap font-sans leading-relaxed">${escHtml(tpl.body)}</pre>
+        </div>`;
+    });
 
-            if (dd < 10) dd = '0' + dd;
-            if (mm < 10) mm = '0' + mm;
+    html += '</div></div>';
+    document.getElementById('ptab-emails').innerHTML = html;
+}
 
-            const formattedToday = yyyy + '-' + mm + '-' + dd;
-            document.getElementById('base-date').value = formattedToday;
+// ===================== TAB: NOTAS =====================
+function renderNotesTab(p) {
+    const notes = p.notesList || [];
+    let html = `<div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+        <div class="p-5 border-b border-slate-100 flex justify-between items-center">
+            <div>
+                <h2 class="text-lg font-bold text-slate-800">Notas y Seguimiento</h2>
+                <p class="text-xs text-slate-500">Registra llamadas, reuniones, acuerdos y cualquier interacción relevante.</p>
+            </div>
+        </div>
+        <div class="p-5">
+            <div class="flex gap-2 mb-4">
+                <input type="text" id="new-note-input" placeholder="Escribe una nota..." class="flex-1 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" onkeydown="if(event.key==='Enter')addNote()">
+                <button onclick="addNote()" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition">Agregar</button>
+            </div>
+            <div class="space-y-2" id="notes-list">`;
 
-            calculateDates(today);
+    if (notes.length === 0) {
+        html += '<p class="text-sm text-slate-400 text-center py-6">Sin notas todavía</p>';
+    } else {
+        notes.slice().reverse().forEach((n, ri) => {
+            const i = notes.length - 1 - ri;
+            html += `
+            <div class="flex items-start gap-3 bg-slate-50 rounded-lg p-3 group">
+                <div class="bg-blue-100 text-blue-700 rounded-full w-7 h-7 flex items-center justify-center flex-shrink-0 text-[10px] font-bold mt-0.5">${n.date.substring(5,10)}</div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm text-slate-700">${escHtml(n.text)}</p>
+                    <p class="text-[10px] text-slate-400 mt-0.5">${n.date}</p>
+                </div>
+                <button onclick="deleteNote(${i})" class="text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition flex-shrink-0">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>`;
+        });
+    }
 
-            document.getElementById('base-date').addEventListener('change', function(e) {
-                if (e.target.value) {
-                    calculateDates(new Date(e.target.value));
-                }
-            });
-        };
+    html += '</div></div></div>';
+    document.getElementById('ptab-notes').innerHTML = html;
+}
 
-        function resetDates() {
-            const today = new Date();
-            const yyyy = today.getFullYear();
-            let mm = today.getMonth() + 1;
-            let dd = today.getDate();
+function addNote() {
+    const input = document.getElementById('new-note-input');
+    const text = input.value.trim();
+    if (!text || !currentProjectId) return;
+    const p = getProject(currentProjectId);
+    const notesList = p.notesList || [];
+    notesList.push({ text, date: new Date().toISOString().substring(0, 16).replace('T', ' ') });
+    updateProject(currentProjectId, { notesList });
+    input.value = '';
+    renderNotesTab(getProject(currentProjectId));
+    showToast('Nota guardada');
+}
 
-            if (dd < 10) dd = '0' + dd;
-            if (mm < 10) mm = '0' + mm;
+function deleteNote(idx) {
+    const p = getProject(currentProjectId);
+    const notesList = p.notesList || [];
+    notesList.splice(idx, 1);
+    updateProject(currentProjectId, { notesList });
+    renderNotesTab(getProject(currentProjectId));
+}
 
-            const formattedToday = yyyy + '-' + mm + '-' + dd;
-            document.getElementById('base-date').value = formattedToday;
-            calculateDates(today);
-            showToast("Fechas restablecidas a la fecha actual");
-        }
+// ===================== MODALS =====================
+function openNewProjectModal() {
+    document.getElementById('modal-title').textContent = 'Nuevo Proyecto';
+    document.getElementById('pf-id').value = '';
+    document.getElementById('pf-name').value = '';
+    document.getElementById('pf-contact').value = '';
+    document.getElementById('pf-email').value = '';
+    document.getElementById('pf-phone').value = '';
+    document.getElementById('pf-stage').value = '1';
+    document.getElementById('pf-notes').value = '';
+    const today = new Date().toISOString().substring(0, 10);
+    document.getElementById('pf-start-date').value = today;
+    document.getElementById('modal-project').classList.remove('hidden');
+    document.getElementById('modal-project').classList.add('flex');
+}
 
-        function formatDate(date) {
-            let dd = date.getDate();
-            let mm = date.getMonth() + 1;
-            const yyyy = date.getFullYear();
-            if (dd < 10) dd = '0' + dd;
-            if (mm < 10) mm = '0' + mm;
-            return dd + '/' + mm + '/' + yyyy;
-        }
+function openEditProjectModal() {
+    const p = getProject(currentProjectId);
+    if (!p) return;
+    document.getElementById('modal-title').textContent = 'Editar Proyecto';
+    document.getElementById('pf-id').value = p.id;
+    document.getElementById('pf-name').value = p.name;
+    document.getElementById('pf-contact').value = p.contact || '';
+    document.getElementById('pf-email').value = p.email || '';
+    document.getElementById('pf-phone').value = p.phone || '';
+    document.getElementById('pf-start-date').value = p.startDate || '';
+    document.getElementById('pf-stage').value = p.stage;
+    document.getElementById('pf-notes').value = p.initialNotes || '';
+    document.getElementById('modal-project').classList.remove('hidden');
+    document.getElementById('modal-project').classList.add('flex');
+}
 
-        function addDays(date, days) {
-            const result = new Date(date);
-            result.setDate(result.getDate() + days);
-            return result;
-        }
+function closeModal() {
+    document.getElementById('modal-project').classList.add('hidden');
+    document.getElementById('modal-project').classList.remove('flex');
+}
 
-        function calculateDates(baseDate) {
-            const stg1 = baseDate;
-            document.getElementById('date-stg1').innerText = "Meta: " + formatDate(stg1);
+function saveProject(e) {
+    e.preventDefault();
+    const id = document.getElementById('pf-id').value;
+    const data = {
+        name: document.getElementById('pf-name').value.trim(),
+        contact: document.getElementById('pf-contact').value.trim(),
+        email: document.getElementById('pf-email').value.trim(),
+        phone: document.getElementById('pf-phone').value.trim(),
+        startDate: document.getElementById('pf-start-date').value,
+        stage: parseInt(document.getElementById('pf-stage').value),
+        initialNotes: document.getElementById('pf-notes').value.trim()
+    };
 
-            const stg2Start = addDays(baseDate, 1);
-            const stg2End = addDays(baseDate, 7);
-            document.getElementById('date-stg2').innerText = formatDate(stg2Start) + " al " + formatDate(stg2End);
+    const projects = loadProjects();
 
-            const stg3Start = addDays(baseDate, 8);
-            const stg3End = addDays(baseDate, 12);
-            document.getElementById('date-stg3').innerText = formatDate(stg3Start) + " al " + formatDate(stg3End);
+    if (id) {
+        const idx = projects.findIndex(p => p.id === id);
+        if (idx >= 0) { projects[idx] = { ...projects[idx], ...data }; }
+    } else {
+        data.id = 'p_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7);
+        data.docs = {};
+        data.notesList = data.initialNotes ? [{ text: data.initialNotes, date: new Date().toISOString().substring(0, 16).replace('T', ' ') }] : [];
+        data.customDates = {};
+        data.createdAt = new Date().toISOString();
+        projects.push(data);
+    }
 
-            const stg4Start = addDays(baseDate, 13);
-            const stg4End = addDays(baseDate, 32);
-            document.getElementById('date-stg4').innerText = formatDate(stg4Start) + " al " + formatDate(stg4End);
+    saveProjects(projects);
+    closeModal();
 
-            const stg5Start = addDays(baseDate, 28);
-            const stg5End = addDays(baseDate, 70);
-            document.getElementById('date-stg5').innerText = formatDate(stg5Start) + " al " + formatDate(stg5End);
-        }
+    if (id && currentProjectId === id) {
+        openProject(id);
+    } else if (!id) {
+        renderDashboard();
+    }
+    showToast(id ? 'Proyecto actualizado' : 'Proyecto creado');
+}
 
-        function switchTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.classList.add('hidden');
-                tab.classList.remove('block');
-            });
+function confirmDeleteProject() {
+    if (!currentProjectId) return;
+    const p = getProject(currentProjectId);
+    if (confirm(`¿Eliminar el proyecto "${p.name}"? Esta acción no se puede deshacer.`)) {
+        const projects = loadProjects().filter(pr => pr.id !== currentProjectId);
+        saveProjects(projects);
+        goToDashboard();
+        showToast('Proyecto eliminado');
+    }
+}
 
-            document.getElementById(tabId).classList.remove('hidden');
-            document.getElementById(tabId).classList.add('block');
+// Upload modal
+function openUploadModal(key, itemName) {
+    document.getElementById('upload-context').textContent = itemName;
+    document.getElementById('uf-pack').value = key;
+    document.getElementById('uf-filename').value = '';
+    document.getElementById('uf-url').value = '';
+    document.getElementById('uf-note').value = '';
+    document.getElementById('modal-upload').classList.remove('hidden');
+    document.getElementById('modal-upload').classList.add('flex');
+}
 
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('border-blue-600', 'text-blue-600');
-                btn.classList.add('border-transparent', 'text-slate-500', 'hover:text-slate-800');
-            });
+function closeUploadModal() {
+    document.getElementById('modal-upload').classList.add('hidden');
+    document.getElementById('modal-upload').classList.remove('flex');
+}
 
-            const activeBtn = document.getElementById('btn-' + tabId);
-            activeBtn.classList.add('border-blue-600', 'text-blue-600');
-            activeBtn.classList.remove('border-transparent', 'text-slate-500', 'hover:text-slate-800');
-        }
+function saveDocument(e) {
+    e.preventDefault();
+    const key = document.getElementById('uf-pack').value;
+    const file = {
+        name: document.getElementById('uf-filename').value.trim(),
+        url: document.getElementById('uf-url').value.trim(),
+        note: document.getElementById('uf-note').value.trim(),
+        addedAt: new Date().toISOString().substring(0, 10)
+    };
 
-        function copyToClipboard(elementId) {
-            const textToCopy = document.getElementById(elementId).innerText;
+    const p = getProject(currentProjectId);
+    if (!p) return;
+    const docs = p.docs || {};
+    docs[key] = docs[key] || { checked: false, files: [] };
+    docs[key].files.push(file);
+    docs[key].checked = true;
+    updateProject(currentProjectId, { docs });
 
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(textToCopy).then(function() {
-                    showToast("Plantilla de email copiada al portapapeles!");
-                }).catch(function() {
-                    fallbackCopy(textToCopy);
-                });
-            } else {
-                fallbackCopy(textToCopy);
-            }
-        }
+    closeUploadModal();
+    renderDocsTab(getProject(currentProjectId));
+    showToast('Documento adjuntado');
+}
 
-        function fallbackCopy(text) {
-            const tempTextArea = document.createElement("textarea");
-            tempTextArea.value = text;
-            document.body.appendChild(tempTextArea);
-            tempTextArea.select();
+// ===================== TAB SWITCHING =====================
+function switchProjectTab(tabId) {
+    document.querySelectorAll('.ptab-content').forEach(t => t.classList.add('hidden'));
+    document.getElementById(tabId).classList.remove('hidden');
+    document.querySelectorAll('.ptab-btn').forEach(b => {
+        b.classList.remove('border-blue-600', 'text-blue-600');
+        b.classList.add('border-transparent', 'text-slate-500');
+    });
+    const btn = document.getElementById('btn-' + tabId);
+    btn.classList.add('border-blue-600', 'text-blue-600');
+    btn.classList.remove('border-transparent', 'text-slate-500');
+}
 
-            try {
-                const successful = document.execCommand('copy');
-                if (successful) {
-                    showToast("Plantilla de email copiada al portapapeles!");
-                } else {
-                    showToast("Error al copiar el texto");
-                }
-            } catch (err) {
-                showToast("Fallo al copiar plantilla");
-            }
+// ===================== UTILITIES =====================
+function formatDate(date) {
+    let dd = date.getDate(), mm = date.getMonth() + 1;
+    const yyyy = date.getFullYear();
+    if (dd < 10) dd = '0' + dd;
+    if (mm < 10) mm = '0' + mm;
+    return dd + '/' + mm + '/' + yyyy;
+}
+function formatDateStr(iso) {
+    if (!iso) return '';
+    const [y,m,d] = iso.split('-');
+    return `${d}/${m}/${y}`;
+}
+function formatISO(date) {
+    let dd = date.getDate(), mm = date.getMonth() + 1;
+    const yyyy = date.getFullYear();
+    if (dd < 10) dd = '0' + dd;
+    if (mm < 10) mm = '0' + mm;
+    return `${yyyy}-${mm}-${dd}`;
+}
+function addDays(date, days) { const r = new Date(date); r.setDate(r.getDate() + days); return r; }
+function escHtml(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+function escAttr(s) { return s.replace(/'/g, "\\'").replace(/"/g, '&quot;'); }
 
-            document.body.removeChild(tempTextArea);
-        }
+function copyEmailText(id) {
+    const text = document.getElementById(id).innerText;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => showToast('Correo copiado al portapapeles')).catch(() => fallbackCopy(text));
+    } else { fallbackCopy(text); }
+}
+function fallbackCopy(text) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); showToast('Correo copiado al portapapeles'); }
+    catch { showToast('Error al copiar'); }
+    document.body.removeChild(ta);
+}
+function showToast(message) {
+    const toast = document.getElementById('toast');
+    document.getElementById('toast-message').textContent = message;
+    toast.classList.remove('translate-y-20', 'opacity-0');
+    toast.classList.add('translate-y-0', 'opacity-100');
+    setTimeout(() => { toast.classList.remove('translate-y-0', 'opacity-100'); toast.classList.add('translate-y-20', 'opacity-0'); }, 3000);
+}
 
-        function showToast(message) {
-            const toast = document.getElementById('toast');
-            document.getElementById('toast-message').innerText = message;
-
-            toast.classList.remove('translate-y-20', 'opacity-0');
-            toast.classList.add('translate-y-0', 'opacity-100');
-
-            setTimeout(() => {
-                toast.classList.remove('translate-y-0', 'opacity-100');
-                toast.classList.add('translate-y-20', 'opacity-0');
-            }, 3000);
-        }
-    </script>
+// ===================== INIT =====================
+window.onload = function() { renderDashboard(); };
+</script>
 </body>
 </html>
